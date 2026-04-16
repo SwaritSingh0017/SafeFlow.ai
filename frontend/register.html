@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SafeFlow.ai | Register</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/glass.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <style>
+    .step { display:none; }
+    .step.active { display:block; animation: fadeSlideUp 0.4s forwards; }
+    .progress-bar { height:6px; background:rgba(99,102,241,0.2); border-radius:4px; margin-bottom:24px; }
+    .progress-fill { height:100%; background:var(--primary); border-radius:4px; transition:width 0.35s ease; }
+  </style>
+</head>
+<body style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px">
+  <div class="glass-card" style="width:440px;max-width:94vw;">
+    <a href="index.html" style="text-decoration:none;display:block;text-align:center;color:var(--primary);margin-bottom:4px">
+      <h2>SafeFlow.ai</h2>
+    </a>
+    <p style="text-align:center;color:var(--text-secondary);margin-bottom:20px;font-size:0.9rem">Create your insured worker account using Firebase phone verification</p>
+
+    <div class="progress-bar"><div class="progress-fill" id="p-fill" style="width:33%"></div></div>
+
+    <div id="step-1" class="step active">
+      <h3 style="margin-bottom:16px">Step 1: Your Profile</h3>
+      <input type="text" id="reg-name" placeholder="Full Name">
+      <input type="tel" id="reg-phone" placeholder="Phone Number (10 digits)" maxlength="10">
+
+      <div id="city-badge" style="background:rgba(99,102,241,0.1);border:1px solid var(--primary);padding:12px;border-radius:8px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+        <span id="city-icon">Detecting</span>
+        <span id="city-text" style="font-weight:600;color:var(--primary)">Detecting your coverage zone...</span>
+      </div>
+      <select id="reg-city" style="display:none; margin-bottom:16px;">
+        <option value="">Select your city manually</option>
+      </select>
+
+      <select id="reg-platform">
+        <option value="">Select Delivery Platform</option>
+        <option value="Swiggy">Swiggy</option>
+        <option value="Zomato">Zomato</option>
+        <option value="Both">Both (Swiggy + Zomato)</option>
+        <option value="Dunzo">Dunzo</option>
+        <option value="Zepto">Zepto</option>
+        <option value="Blinkit">Blinkit</option>
+        <option value="Other">Other</option>
+      </select>
+      <button type="button" class="btn-primary" style="width:100%;margin-top:16px" onclick="goToStep2()">Next: Earnings</button>
+    </div>
+
+    <div id="step-2" class="step">
+      <h3 style="margin-bottom:16px">Step 2: Your Earnings</h3>
+      <label>Average Daily Earnings (Rs)</label>
+      <input type="number" id="reg-income" placeholder="e.g. 800" value="800" min="100" max="5000">
+      <label style="margin-top:12px;display:block">Daily Working Hours</label>
+      <input type="number" id="reg-hours" placeholder="e.g. 8" value="8" min="1" max="18">
+      <div style="display:flex;gap:12px;margin-top:24px">
+        <button type="button" class="btn-ghost" style="flex:1" onclick="showStep(1)">Back</button>
+        <button type="button" class="btn-primary" style="flex:2" onclick="sendRegisterOtp()">Send OTP</button>
+      </div>
+    </div>
+
+    <div id="step-3" class="step">
+      <h3 style="margin-bottom:16px">Step 3: Verify and Create</h3>
+      <p id="reg-otp-hint" style="font-size:0.84rem;color:var(--text-muted);margin-bottom:16px"></p>
+      <label>Enter OTP</label>
+      <input type="text" id="reg-otp" placeholder="6-digit code" maxlength="6" inputmode="numeric">
+      <div style="display:flex;gap:12px;margin-top:24px">
+        <button type="button" class="btn-ghost" style="flex:1" onclick="showStep(2)">Back</button>
+        <button type="button" class="btn-primary" style="flex:2" onclick="registerWorker()">Create Account</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="firebase-recaptcha"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/firebase-auth.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    const CITY_CENTERS = {
+      "Mumbai":[19.0760,72.8777],"Delhi":[28.7041,77.1025],"Bangalore":[12.9716,77.5946],
+      "Chennai":[13.0827,80.2707],"Pune":[18.5204,73.8567],"Hyderabad":[17.3850,78.4867],
+      "Kolkata":[22.5726,88.3639],"Ahmedabad":[23.0225,72.5714],"Surat":[21.1702,72.8311],
+      "Jaipur":[26.9124,75.7873],"Lucknow":[26.8467,80.9462],"Kanpur":[26.4499,80.3319],
+      "Nagpur":[21.1458,79.0882],"Indore":[22.7196,75.8577],"Thane":[19.2183,72.9781],
+      "Bhopal":[23.2599,77.4126],"Visakhapatnam":[17.6868,83.2185],"Patna":[25.5941,85.1376],
+      "Vadodara":[22.3072,73.1812],"Ghaziabad":[28.6692,77.4538],"Ludhiana":[30.9010,75.8573],
+      "Agra":[27.1767,78.0081],"Nashik":[19.9975,73.7898],"Ranchi":[23.3441,85.3096],
+      "Bhubaneswar":[20.2961,85.8245],"Guwahati":[26.1445,91.7362],"Chandigarh":[30.7333,76.7794],
+      "Coimbatore":[11.0168,76.9558],"Kochi":[9.9312,76.2673],"Dehradun":[30.3165,78.0322]
+    };
+
+    function showStep(n) {
+      document.querySelectorAll(".step").forEach((el) => el.classList.remove("active"));
+      document.getElementById(`step-${n}`).classList.add("active");
+      document.getElementById("p-fill").style.width = ["", "33%", "66%", "100%"][n];
+    }
+
+    let detectAttempts = 0;
+    function detectCity() {
+      detectAttempts++;
+      const lat = parseFloat(window._gpsLat);
+      const lon = parseFloat(window._gpsLon);
+      const textEl = document.getElementById("city-text");
+      const iconEl = document.getElementById("city-icon");
+      const input = document.getElementById("reg-city");
+
+      if (!lat || lat === 0) {
+        if (detectAttempts > 8) {
+            document.getElementById("city-badge").style.display = "none";
+            input.style.display = "block";
+            if (input.options.length <= 1) {
+                Object.keys(CITY_CENTERS).sort().forEach(city => {
+                    const opt = document.createElement("option");
+                    opt.value = opt.textContent = city;
+                    input.appendChild(opt);
+                });
+            }
+            return;
+        }
+        setTimeout(detectCity, 600);
+        return;
+      }
+
+      let nearest = null;
+      let minDist = Infinity;
+      for (const [name, coords] of Object.entries(CITY_CENTERS)) {
+        const d = Math.pow(lat - coords[0], 2) + Math.pow(lon - coords[1], 2);
+        if (d < minDist) {
+          minDist = d;
+          nearest = name;
+        }
+      }
+
+      if (!nearest || minDist > 1.0) {
+        textEl.textContent = "Outside coverage zone";
+        textEl.style.color = "var(--danger)";
+        iconEl.textContent = "Blocked";
+        input.value = "";
+      } else {
+        textEl.textContent = `Coverage Zone: ${nearest}`;
+        iconEl.textContent = "Ready";
+        if (input.options.length <= 1) {
+            const opt = document.createElement("option");
+            opt.value = opt.textContent = nearest;
+            input.appendChild(opt);
+        }
+        input.value = nearest;
+      }
+    }
+
+    function goToStep2() {
+      const name = document.getElementById("reg-name").value.trim();
+      const phone = document.getElementById("reg-phone").value.trim();
+      const city = document.getElementById("reg-city").value;
+      const platform = document.getElementById("reg-platform").value;
+      if (!name) return showToast("Enter your full name", "error");
+      if (phone.length !== 10) return showToast("Enter a valid 10-digit phone number", "error");
+      if (!city) return showToast("Allow location access so we can verify your coverage zone.", "error");
+      if (!platform) return showToast("Select your delivery platform", "error");
+      showStep(2);
+    }
+
+    async function sendRegisterOtp() {
+      const phone = document.getElementById("reg-phone").value.trim();
+      if (phone.length !== 10) return showToast("Enter a valid 10-digit phone number", "error");
+      try {
+        await sendFirebaseOtp(phone, "firebase-recaptcha");
+        window.__otpMode = "firebase";
+        document.getElementById("reg-otp-hint").textContent = `OTP sent to +91${phone}`;
+        showToast("OTP sent!", "success");
+        showStep(3);
+      } catch (error) {
+        try {
+          const fallback = await sendBackendOtp(phone);
+          document.getElementById("reg-otp-hint").textContent =
+            fallback.method === "demo"
+              ? "Demo OTP is 123456"
+              : `OTP sent to +91${phone} via backend service`;
+          showToast("OTP sent via backend fallback!", "success");
+          showStep(3);
+        } catch (fallbackError) {
+          showToast(fallbackError.message || error.message || "Failed to send OTP", "error");
+        }
+      }
+    }
+
+    async function registerWorker() {
+      const otp = document.getElementById("reg-otp").value.trim();
+      if (!otp || otp.length !== 6) return showToast("Enter the 6-digit OTP", "error");
+
+      const profile = {
+        name: document.getElementById("reg-name").value.trim(),
+        city: document.getElementById("reg-city").value,
+        platform: document.getElementById("reg-platform").value,
+        avg_daily_income: parseFloat(document.getElementById("reg-income").value) || 800,
+        platform_hours: parseFloat(document.getElementById("reg-hours").value) || 8,
+        device_id: getDeviceId(),
+        lat: parseFloat(window._gpsLat) || null,
+        lon: parseFloat(window._gpsLon) || null,
+      };
+
+      try {
+        let result;
+        if (window.__otpMode === "backend") {
+          result = await registerWithBackendOtp({
+            ...profile,
+            phone: document.getElementById("reg-phone").value.trim(),
+            otp,
+          });
+        } else {
+          const firebaseToken = await confirmFirebaseOtp(otp);
+          result = await exchangeFirebaseToken(firebaseToken, profile);
+        }
+        if (!result) return;
+
+        const { response, data } = result;
+        if (response.ok) {
+          saveAuth(data, true, data.worker);
+          showToast("Account created!", "success");
+          setTimeout(() => { window.location.href = "dashboard.html"; }, 600);
+          return;
+        }
+
+        showToast((typeof data.detail === "object" ? data.detail.message : data.detail) || "Registration failed", "error");
+      } catch (error) {
+        showToast(error.message || "Registration failed", "error");
+      }
+    }
+
+    window.addEventListener("load", () => {
+      const pendingPhone = sessionStorage.getItem("gs_pending_phone");
+      if (pendingPhone) {
+        document.getElementById("reg-phone").value = pendingPhone;
+        sessionStorage.removeItem("gs_pending_phone");
+      }
+      detectCity();
+    });
+  </script>
+</body>
+</html>

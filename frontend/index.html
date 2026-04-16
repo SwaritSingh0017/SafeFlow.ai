@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- 
+    GigShield | Advanced Parametric Insurance for Gig Workers
+    Designed for the future of the gig economy.
+    
+    Philosophy: 
+    1. Premium Glassmorphism: Using blurs and transparency for a modern, airy feel.
+    2. Adaptive Design: Mobile-first responsive layout.
+    3. Performance: No-lag transitions and skeleton loading.
+  -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SafeFlow.ai | Secure Your Income</title>
+
+  <!-- Modern Typography: Sora for headings, DM Sans for body text -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Design System Core: Main utilities and Glassmorphism tokens -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/glass.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/mobile.css">
+  <style>
+    .landing-hero {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+      min-height: 80vh;
+      padding: 0 40px;
+    }
+
+    .hero-title {
+      font-size: 3.5rem;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      color: var(--text-primary);
+    }
+
+    .hero-subtitle {
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      margin-bottom: 30px;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .floating-orbs {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.4;
+    }
+
+    .orb-1 {
+      width: 400px;
+      height: 400px;
+      background: var(--primary);
+      top: -100px;
+      left: -100px;
+      animation: float 10s infinite alternate;
+    }
+
+    .orb-2 {
+      width: 500px;
+      height: 500px;
+      background: var(--accent);
+      bottom: -150px;
+      right: -100px;
+      animation: float 15s infinite alternate-reverse;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      100% {
+        transform: translate(50px, 50px) scale(1.1);
+      }
+    }
+  </style>
+</head>
+
+<body style="overflow-x: hidden;">
+  <!-- Background Visuals: Floating orbs for depth -->
+  <div class="floating-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+  </div>
+
+  <!-- Main Navigation: Fixed at top with glassmorphism blur -->
+  <nav class="navbar-desktop container"
+    style="margin-top:20px; border-radius:24px; display:flex; justify-content:space-between;">
+    <a href="index.html"
+      style="text-decoration:none; font-family:'Sora',sans-serif; font-weight:700; font-size:1.4rem; color:var(--primary)">🛡️
+      SafeFlow.ai</a>
+    <div class="navbar-links">
+      <a href="login.html">Worker Login</a>
+      <a href="admin-login.html">Admin Portal</a>
+    </div>
+  </nav>
+
+  <!-- Hero Section: Premium Orange & White Gradient Background -->
+  <div class="container landing-hero">
+    <div class="hero-left card-stagger">
+      <div class="badge" style="background:var(--primary-glow); color:var(--primary); margin-bottom:16px;">✨ AI-Powered
+        Parametric Insurance</div>
+      <h1 class="hero-title">Protect your income before you lose it.</h1>
+      <p class="hero-subtitle">When rain stops deliveries, SafeFlow starts paying. Automatically. Instantly. Zero
+        claims.</p>
+
+      <div class="cta-buttons">
+        <button class="btn-primary" onclick="location.href='register.html'">Get Protected →</button>
+        <button class="btn-ghost" onclick="location.href='login.html'">Login</button>
+      </div>
+
+      <div style="color:var(--text-muted); font-size:0.9rem">
+        Trusted by 10,000+ <span class="badge badge-swiggy">Swiggy</span> &amp; <span
+          class="badge badge-zomato">Zomato</span> riders
+      </div>
+    </div>
+
+    <!-- Core Features: Clean Glass Cards with Micro-animations -->
+    <div class="hero-right card-stagger" style="animation-delay: 0.2s">
+      <div class="glass-card" style="position:relative">
+        <h3 style="margin-bottom:20px">Live Simulation</h3>
+        <p style="color:var(--text-secondary); margin-bottom:24px">This is what zero-touch looks like.</p>
+
+        <div style="display:flex; gap:12px; margin-bottom:24px">
+          <button class="btn-ghost" style="flex:1; border-color:var(--primary-light)">🌧️ Heavy Rain</button>
+          <button class="btn-ghost" style="flex:1; border-color:var(--danger)">☀️ Heatwave</button>
+        </div>
+
+        <div class="glass-panel"
+          style="padding:16px; display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
+          <div><span style="font-size:2rem">₹</span> Wallet</div>
+          <div style="font-size:2rem; font-family:'JetBrains Mono'; color:var(--success)">+420</div>
+        </div>
+
+        <div style="text-align:center; color:var(--success); font-weight:600; font-size:0.9rem;"
+          class="animate-pulse-green">
+          ● Coverage Active
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+
+</html>

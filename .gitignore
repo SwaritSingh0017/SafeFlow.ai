@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+gigshield_env/
+.pytest_cache/
+
+# Node
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+.env
+backend/.env
+
+# Local Config
+.vscode/
+
+# Ignore local databases
+*.db
+
+backend/safeflow-firebase.json
+.env
+*.json

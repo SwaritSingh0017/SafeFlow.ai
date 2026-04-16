@@ -1,0 +1,94 @@
+/* Breakpoints: 320px | 375px | 430px | 768px | 1024px */
+
+/* \u2500\u2500 TABLET \u2500\u2500 */
+@media (max-width: 1024px) {
+    .dashboard-grid, .admin-grid { grid-template-columns: repeat(2, 1fr); }
+    #admin-risk-map               { height: 320px; }
+}
+
+/* \u2500\u2500 MOBILE \u2500\u2500 */
+@media (max-width: 768px) {
+    /* Stack all grids to single column */
+    .dashboard-grid, .admin-grid,
+    .landing-hero, .pricing-grid  { grid-template-columns: 1fr; }
+    
+    .col-span-2, .col-span-3, .col-span-4 { grid-column: span 1; }
+
+    /* Replace top navbar with bottom tab bar */
+    .navbar-desktop { display: none; }
+    .navbar-mobile  {
+        display: flex; position: fixed;
+        bottom: 0; left: 0; right: 0;
+        background: var(--glass-bg-strong);
+        backdrop-filter: var(--glass-blur);
+        border-top: 1px solid var(--glass-border);
+        justify-content: space-around;
+        padding: 10px 0 20px; z-index: 1000;
+    }
+    .nav-tab {
+        display: flex; flex-direction: column;
+        align-items: center; gap: 4px;
+        font-size: 10px; color: var(--text-muted);
+        padding: 6px 16px; border-radius: 10px;
+    }
+    .nav-tab.active { color: var(--primary); }
+    main            { padding-bottom: 90px; }
+
+    /* Cards */
+    .glass-card { padding: 16px; border-radius: 16px; }
+
+    /* Hero */
+    .hero-right    { display: none; }
+    .hero-title    { font-size: 2rem; }
+    .cta-buttons   { flex-direction: column; gap: 12px; }
+    .cta-buttons button { width: 100%; }
+
+    /* Charts */
+    .income-chart-container { height: 200px; }
+
+    /* Community sidebar hidden */
+    .community-sidebar { display: none; }
+
+    /* Admin tables scroll horizontally */
+    .data-table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .data-table         { min-width: 600px; }
+
+    /* Maps */
+    #admin-risk-map  { height: 260px; }
+    #worker-mini-map { height: 160px; }
+
+    /* Chatbot \u2014 full width */
+    .chatbot-panel { position: fixed; bottom: 80px; left: 12px; right: 12px; width: auto; z-index: 1000; }
+
+    /* Modals \u2014 full screen */
+    .modal-content { width: 100vw; height: 100vh; border-radius: 0; margin: 0; padding: 20px; }
+
+    /* OTP boxes */
+    .otp-box { width: 42px; height: 50px; font-size: 1.2rem; }
+
+    /* Fraud table \u2014 hide less critical columns */
+    .fraud-table td:nth-child(3),
+    .fraud-table td:nth-child(4) { display: none; }
+}
+
+/* \u2500\u2500 SMALL PHONES \u2500\u2500 */
+@media (max-width: 375px) {
+    .hero-title { font-size: 1.7rem; }
+    .glass-card { padding: 14px; }
+    .otp-box    { width: 36px; height: 44px; }
+    .kpi-grid   { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* \u2500\u2500 MINIMUM TOUCH TARGETS \u2500\u2500 */
+button, .nav-tab, .like-btn, .comment-action-btn { min-height: 44px; min-width: 44px; }
+
+/* \u2500\u2500 iPhone notch / Dynamic Island safe area \u2500\u2500 */
+@supports (padding: max(0px)) {
+    .navbar-mobile { padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+    main           { padding-top: max(0px, env(safe-area-inset-top)); }
+}
+
+/* \u2500\u2500 Smooth touch scroll \u2500\u2500 */
+.community-feed, .notifications-feed, .data-table-wrapper {
+    -webkit-overflow-scrolling: touch; scroll-behavior: smooth;
+}

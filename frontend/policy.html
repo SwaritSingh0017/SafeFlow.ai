@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Insurance Plans | SafeFlow.ai</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/glass.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/mobile.css">
+    <style>
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-top: 32px;
+        }
+        .plan-card {
+            border: 2px solid var(--glass-border);
+            transition: all 0.3s ease;
+        }
+        .plan-card.recommended {
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+        .plan-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-8px);
+        }
+        .plan-price {
+            font-size: 2.5rem;
+            font-family: 'Sora';
+            color: var(--primary);
+            margin: 16px 0;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 16px 0;
+        }
+        .feature-list li {
+            padding: 6px 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        .feature-list li::before {
+            content: "✅ ";
+        }
+        .active-badge {
+            background: var(--success-glow);
+            color: var(--success);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar-desktop">
+        <a href="dashboard.html" style="text-decoration:none; font-family:'Sora';font-weight:700;color:var(--primary);font-size:1.2rem">🛡️ SafeFlow</a>
+        <div class="navbar-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="policy.html" class="active">Insurance Plans</a>
+            <a href="community.html">Community Feed</a>
+            <a href="profile.html">Profile</a>
+            <a href="#" style="color:var(--danger)" onclick="logout()">Logout</a>
+        </div>
+    </nav>
+
+    <nav class="navbar-mobile">
+        <div class="nav-tab" onclick="location.href='dashboard.html'">
+            <span style="font-size:20px">🏠</span><br>Home
+        </div>
+        <div class="nav-tab active" onclick="location.href='policy.html'">
+            <span style="font-size:20px">🛡️</span><br>Plans
+        </div>
+        <div class="nav-tab" onclick="location.href='profile.html'">
+            <span style="font-size:20px">👤</span><br>Profile
+        </div>
+        <div class="nav-tab" onclick="logout()">
+            <span style="font-size:20px">🚪</span><br>Exit
+        </div>
+    </nav>
+
+    <main class="container">
+        <div style="text-align:center; margin-top:32px">
+            <h2>Choose Your Protection Plan</h2>
+            <p style="color:var(--text-secondary)">
+                Parametric payouts trigger automatically — no claims needed
+            </p>
+        </div>
+
+        <!-- Current Plan Banner -->
+        <div id="current-plan-banner" class="glass-card" 
+             style="display:none; margin-top:24px; 
+                    background:var(--success-glow); 
+                    border-color:var(--success); 
+                    text-align:center">
+            <h4 style="color:var(--success); margin:0">
+                ✅ Active Plan: <span id="current-plan-name"></span>
+            </h4>
+            <p style="color:var(--text-secondary); margin:8px 0 0">
+                Max payout: ₹<span id="current-plan-payout"></span> | 
+                Premium: ₹<span id="current-plan-premium"></span>/week
+            </p>
+        </div>
+
+        <!-- Plans Grid -->
+        <div class="pricing-grid" id="plans-grid">
+            <!-- Injected by JS -->
+        </div>
+
+
+        <!-- Dynamic Premium Calculator -->
+<div class="glass-card" style="margin-top:32px; margin-bottom:32px">
+    <h3 style="color:var(--primary)">🤖 AI Dynamic Premium Calculator</h3>
+    <p style="color:var(--text-secondary)">
+        Our ML model adjusts your weekly premium based on 
+        real-time city risk factors — rain, temperature, AQI, and claim history.
+    </p>
+
+    <div style="display:flex; gap:16px; margin-top:16px; flex-wrap:wrap">
+        <select id="calc-city" style="flex:1; min-width:150px">
+            <option value="Mumbai">Mumbai</option>
+            <option value="Delhi">Delhi</option>
+            <option value="Bangalore">Bangalore</option>
+            <option value="Chennai">Chennai</option>
+            <option value="Pune">Pune</option>
+            <option value="Hyderabad">Hyderabad</option>
+            <option value="Kolkata">Kolkata</option>
+        </select>
+
+        <select id="calc-plan" style="flex:1; min-width:150px">
+            <option value="Basic">Basic</option>
+            <option value="Standard">Standard</option>
+            <option value="Premium">Premium</option>
+        </select>
+
+        <button class="btn-primary" onclick="calculatePremium()" 
+                style="flex:1; min-width:150px">
+            🧮 Calculate My Premium
+        </button>
+    </div>
+
+    <!-- Result -->
+    <div id="premium-result" style="display:none; margin-top:24px">
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px">
+            <div style="text-align:center; padding:16px; background:var(--bg-secondary); border-radius:12px">
+                <div style="font-size:0.85rem; color:var(--text-muted)">Base Premium</div>
+                <div style="font-size:1.8rem; font-weight:700; color:var(--text-primary)">
+                    ₹<span id="base-premium">--</span>
+                </div>
+                <div style="font-size:0.8rem; color:var(--text-muted)">/week</div>
+            </div>
+
+            <div style="text-align:center; padding:16px; background:var(--bg-secondary); border-radius:12px">
+                <div style="font-size:0.85rem; color:var(--text-muted)">Risk Multiplier</div>
+                <div style="font-size:1.8rem; font-weight:700; color:var(--primary)">
+                    <span id="multiplier">--</span>x
+                </div>
+                <div id="risk-label" style="font-size:0.8rem; font-weight:600">--</div>
+            </div>
+
+            <div style="text-align:center; padding:16px; background:var(--bg-secondary); border-radius:12px">
+                <div style="font-size:0.85rem; color:var(--text-muted)">Your Premium</div>
+                <div style="font-size:1.8rem; font-weight:700; color:var(--success)">
+                    ₹<span id="adjusted-premium">--</span>
+                </div>
+                <div style="font-size:0.8rem; color:var(--text-muted)">/week</div>
+            </div>
+        </div>
+
+        <div id="premium-message" 
+             style="margin-top:16px; padding:12px; border-radius:12px; text-align:center; font-weight:600">
+        </div>
+    </div>
+</div>
+    </main>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/payment.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        let currentPlanType = null;
+
+        async function loadPlans() {
+            const [plansRes, myPolicyRes] = await Promise.all([
+                apiFetch('/policy/plans'),
+                apiFetch('/policy/my-policy')
+            ]);
+
+            const plans = await plansRes.json();
+            const myPolicy = await myPolicyRes.json();
+
+            // Show current plan banner
+            if (myPolicy.has_policy) {
+                currentPlanType = myPolicy.plan_type;
+                document.getElementById('current-plan-banner').style.display = 'block';
+                document.getElementById('current-plan-name').innerText = myPolicy.plan_type;
+                document.getElementById('current-plan-payout').innerText = myPolicy.max_payout;
+                document.getElementById('current-plan-premium').innerText = myPolicy.weekly_premium;
+            }
+
+            // Render plan cards
+            const grid = document.getElementById('plans-grid');
+            const planOrder = ['Basic', 'Standard', 'Premium'];
+            const colors = {
+                'Basic': '#64748B',
+                'Standard': '#F97316',
+                'Premium': '#8B5CF6'
+            };
+
+            grid.innerHTML = planOrder.map(planName => {
+                const plan = plans[planName];
+                const isActive = currentPlanType === planName;
+                const isRecommended = planName === 'Standard';
+
+                return `
+                <div class="glass-card plan-card card-stagger ${isRecommended ? 'recommended' : ''}">
+                    ${isRecommended ? `
+                        <div style="text-align:center; margin-bottom:12px">
+                            <span class="badge" style="background:var(--primary); color:white">
+                                ⭐ Most Popular
+                            </span>
+                        </div>` : ''}
+                    
+                    <h3 style="color:${colors[planName]}; margin:0">${planName}</h3>
+                    
+                    <div class="plan-price">
+                        ₹${plan.weekly_premium}
+                        <span style="font-size:1rem; color:var(--text-muted)">/week</span>
+                    </div>
+
+                    <div style="background:var(--bg-secondary); 
+                                border-radius:12px; padding:12px; 
+                                margin-bottom:16px; font-size:0.85rem">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:4px">
+                            <span>Max Payout</span>
+                            <b style="color:var(--success)">₹${plan.max_payout}</b>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:4px">
+                            <span>🌧️ Rain Trigger</span>
+                            <b>${plan.rain_threshold}mm+</b>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:4px">
+                            <span>🌡️ Heat Trigger</span>
+                            <b>${plan.heat_threshold}°C+</b>
+                        </div>
+                        <div style="display:flex; justify-content:space-between">
+                            <span>😷 AQI Trigger</span>
+                            <b>${plan.aqi_threshold}+</b>
+                        </div>
+                    </div>
+
+                    <ul class="feature-list">
+                        ${plan.features.map(f => `<li>${f}</li>`).join('')}
+                    </ul>
+
+                    ${isActive ? 
+                        `<div style="text-align:center">
+                            <span class="active-badge">✅ Current Plan</span>
+                        </div>` :
+                        `<button class="btn-primary" style="width:100%" 
+                                 onclick="purchasePlan('${planName}')">
+                            Get ${planName} →
+                        </button>`
+                    }
+                </div>`;
+            }).join('');
+        }
+        async function calculatePremium() {
+    const city = document.getElementById('calc-city').value;
+    const plan = document.getElementById('calc-plan').value;
+
+    const res = await apiFetch(`/policy/dynamic-premium/${plan}?city=${city}`);
+    if (!res || !res.ok) {
+        showToast("Calculation failed", "error");
+        return;
+    }
+
+    const data = await res.json();
+
+    document.getElementById('premium-result').style.display = 'block';
+    document.getElementById('base-premium').innerText = data.base_premium;
+    document.getElementById('multiplier').innerText = data.multiplier;
+    document.getElementById('adjusted-premium').innerText = data.adjusted_premium;
+
+    const label = document.getElementById('risk-label');
+    label.innerText = data.risk_label;
+    label.style.color = data.risk_color;
+
+    const msg = document.getElementById('premium-message');
+    let msgText = '';
+    if (data.solvency_surcharge > 0) {
+        msgText += `⚠️ Pool reserve low — ₹${data.solvency_surcharge} solvency surcharge applied. `;
+    }
+    if (data.savings > 0) {
+        msg.style.background = 'var(--success-glow)';
+        msg.style.color = 'var(--success)';
+        msg.innerText = msgText + `🎉 Low risk zone! You save ₹${data.savings}/week vs base price`;
+    } else if (data.extra_charge > 0) {
+        msg.style.background = 'rgba(239,68,68,0.1)';
+        msg.style.color = 'var(--danger)';
+        msg.innerText = msgText + `⚠️ High risk zone — ₹${data.extra_charge} extra/week`;
+    } else {
+        msg.style.background = 'var(--primary-glow)';
+        msg.style.color = 'var(--primary)';
+        msg.innerText = msgText || '✅ Standard pricing for your zone';
+    }
+    }
+
+        // purchasePlan is handled by payment.js (Razorpay integration)
+
+        window.addEventListener('DOMContentLoaded', loadPlans);
+    </script>
+</body>
+</html>

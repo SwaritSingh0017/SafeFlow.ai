@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- 
+    SafeFlow | Administrative Operations Console
+    Philosophy: 'Adaptive Fraud Intelligence'
+    
+    This console demonstrates real-time city-level oversight.
+    Components:
+    1. Admin Radar: Leaflet.js-powered risk heatmap.
+    2. KPI Grid: High-density performance metrics.
+    3. Disruption Simulator: Trigger parametric events locally.
+    
+    Architecture:
+    - Stand-alone frontend dashboard.
+    - Modular JS architecture (config, api, auth, map, simulation).
+    - Real-time data injection via DOM manipulation.
+  -->
+  <meta charset="UTF-8">
+  <title>Admin Radar | SafeFlow.ai</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/glass.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body style="background: var(--bg-primary)">
+
+  <nav class="navbar-desktop" style="background: rgba(255,255,255,0.9)">
+    <a href="admin.html" style="text-decoration:none; font-family:'Sora';font-weight:700;color:#0F172A;font-size:1.2rem">🔐 SafeFlow Operations</a>
+    <div class="navbar-links">
+      <a href="admin.html" class="active">Radar</a>
+      <a href="#" style="color:var(--danger)" onclick="logout()">Logout</a>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="dashboard-grid kpi-grid" style="margin-top:12px">
+      <div class="glass-card card-stagger">
+        <div style="font-size:0.9rem; color:var(--text-muted)">👥 Total Workers</div>
+        <div id="stat-workers" style="font-size:2.2rem; font-weight:700">--</div>
+      </div>
+      <div class="glass-card card-stagger">
+        <div style="font-size:0.9rem; color:var(--text-muted)">📋 Active Policies</div>
+        <div id="stat-policies" style="font-size:2.2rem; font-weight:700">--</div>
+      </div>
+      <div class="glass-card card-stagger">
+        <div style="font-size:0.9rem; color:var(--text-muted)">⚡ Auto-Claims Today</div>
+        <div id="stat-claims" style="font-size:2.2rem; font-weight:700">--</div>
+      </div>
+      <div class="glass-card card-stagger">
+        <div style="font-size:0.9rem; color:var(--text-muted)">🚨 Active Fraud Alerts</div>
+        <div id="stat-fraud" style="font-size:2.2rem; font-weight:700; color:var(--danger)">--</div>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <!-- Radar Map -->
+      <div class="glass-card card-stagger col-span-2" style="padding:0; overflow:hidden">
+        <div style="padding:16px; border-bottom:1px solid var(--glass-border); font-weight:600">Risk Heatmap (Real-time)</div>
+        <div id="admin-risk-map" style="width:100%; height:400px; border-radius:0; border:none; z-index:1;"></div>
+      </div>
+
+      <!-- Simulator -->
+      <div class="glass-card card-stagger col-span-2" style="background:var(--glass-bg); color:var(--text-primary); border-color:var(--glass-border)">
+        <h4 style="color:var(--primary)">⚡ Disruption Simulator Console</h4>
+        <p style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:20px">Trigger targeted API disruptions to test parametric payload delivery mechanics and AI fraud filtering cascades.</p>
+        
+        <label>Target City</label>
+        <select id="sim-city" style="background:white; color:var(--text-primary); border-color:var(--glass-border)">
+            <option>Mumbai</option><option>Delhi</option><option>Bangalore</option><option>Chennai</option>
+            <option>Pune</option><option>Hyderabad</option><option>Kolkata</option>
+        </select>
+        
+        <label>Event Type</label>
+        <select id="sim-disruption" style="background:white; color:var(--text-primary); border-color:var(--glass-border)">
+            <option value="Heavy Rain">Heavy Rain</option>
+            <option value="Extreme Heat">Extreme Heat</option>
+            <option value="Severe Pollution">Severe Pollution (AQI)</option>
+        </select>
+        
+        <label>Intensity</label>
+        <select id="sim-intensity" style="background:white; color:var(--text-primary); border-color:var(--glass-border)">
+            <option value="High">Maximum (Immediate Coverage Trig)</option>
+            <option value="Medium">Medium (Close to Threshold)</option>
+        </select>
+        
+        <button id="sim-btn" class="btn-primary" style="width:100%; margin-top:16px" onclick="triggerSimulation()">🚀 Transmit Payload</button>
+      </div>
+
+      <!-- Fraud Panel -->
+      <div class="glass-card card-stagger col-span-4 data-table-wrapper" style="margin-top:20px; padding:0; overflow:hidden">
+          <div style="padding:16px; border-bottom:1px solid var(--glass-border); background:#FFF7ED">
+              <h4 style="color:var(--primary); margin:0">🚨 Active Investigation Queue</h4>
+          </div>
+          <div style="padding:16px; overflow-x:auto;">
+              <table style="width:100%; text-align:left; border-collapse:collapse;" class="data-table">
+                  <thead style="color:var(--text-muted); font-size:0.85rem">
+                      <tr>
+                          <th style="padding:12px; border-bottom:1px solid var(--glass-border)">Worker ID</th>
+                          <th style="padding:12px; border-bottom:1px solid var(--glass-border)">City</th>
+                          <th style="padding:12px; border-bottom:1px solid var(--glass-border)">AI Threat Score</th>
+                          <th style="padding:12px; border-bottom:1px solid var(--glass-border)">Detected Anomalies</th>
+                          <th style="padding:12px; border-bottom:1px solid var(--glass-border)">Override Command</th>
+                      </tr>
+                  </thead>
+                  <tbody id="fraud-tbody" style="font-size:0.9rem">
+                      <!-- injected by js -->
+                  </tbody>
+              </table>
+          </div>
+      </div>
+    </div>
+  
+      <!-- Actuarial Pool Health -->
+      <div class="glass-card card-stagger col-span-full">
+        <h4 style="margin-bottom:16px">🏦 Actuarial Pool Health by City</h4>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:0.9rem" class="data-table">
+            <thead>
+              <tr style="border-bottom:1px solid var(--glass-border)">
+                <th style="padding:10px;text-align:left">City</th>
+                <th style="padding:10px;text-align:left">Premiums Collected</th>
+                <th style="padding:10px;text-align:left">Claims Paid</th>
+                <th style="padding:10px;text-align:left">Reserve Ratio</th>
+                <th style="padding:10px;text-align:left">Status</th>
+              </tr>
+            </thead>
+            <tbody id="pool-tbody">
+              <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:16px">Loading pool data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ─── Pending Withdrawals ─────────────────────────────────────── -->
+      <div class="glass-card card-stagger col-span-full" style="margin-top:20px">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <h4 style="margin:0">↑ Withdrawal Requests</h4>
+          <button class="btn-primary" style="padding:8px 16px; font-size:0.85rem;" onclick="loadWithdrawals()">🔄 Refresh</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:0.9rem" class="data-table">
+            <thead>
+              <tr style="border-bottom:1px solid var(--glass-border); color:var(--text-muted); font-size:0.82rem;">
+                <th style="padding:10px;text-align:left">Reference</th>
+                <th style="padding:10px;text-align:left">Worker</th>
+                <th style="padding:10px;text-align:left">UPI ID</th>
+                <th style="padding:10px;text-align:right">₹ Amount</th>
+                <th style="padding:10px;text-align:left">Status</th>
+                <th style="padding:10px;text-align:left">Requested</th>
+                <th style="padding:10px;text-align:center">Action</th>
+              </tr>
+            </thead>
+            <tbody id="withdrawals-tbody">
+              <tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:20px">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="withdrawal-summary" style="margin-top:12px; font-size:0.85rem; color:var(--text-muted);"></div>
+      </div>
+
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/simulation.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => { setTimeout(() => {
+        if(window.initAdminRiskMap) window.initAdminRiskMap();
+    }, 1000)});
+  </script>
+</body>
+</html>

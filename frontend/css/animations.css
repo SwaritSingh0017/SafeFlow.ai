@@ -1,0 +1,48 @@
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0px var(--danger-glow); }
+  50%      { box-shadow: 0 0 24px var(--danger-glow); }
+}
+
+@keyframes pulseGlowSuccess {
+  0%, 100% { box-shadow: 0 0 0px var(--success-glow); }
+  50%      { box-shadow: 0 0 24px var(--success-glow); }
+}
+
+@keyframes countUp { from { opacity: 0; } to { opacity: 1; } }
+
+@keyframes shimmer {
+  0%   { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+.animate-pulse-red { animation: pulseGlow 1.5s infinite; border-color: var(--danger); }
+.animate-pulse-green { animation: pulseGlowSuccess 1.5s infinite; border-color: var(--success); }
+
+.skeleton {
+  background: linear-gradient(90deg, #F8FAFC 25%, #FFF7ED 50%, #F8FAFC 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: 12px;
+  min-height: 1.2em;
+  min-width: 40px;
+  display: inline-block;
+  color: transparent !important;
+  user-select: none;
+  pointer-events: none;
+}
+
+.card-stagger {
+  opacity: 0;
+  animation: fadeSlideUp 0.5s ease forwards;
+}
+.card-stagger:nth-child(1) { animation-delay: 0.1s; }
+.card-stagger:nth-child(2) { animation-delay: 0.2s; }
+.card-stagger:nth-child(3) { animation-delay: 0.3s; }
+.card-stagger:nth-child(4) { animation-delay: 0.4s; }
+.card-stagger:nth-child(5) { animation-delay: 0.5s; }
+.card-stagger:nth-child(6) { animation-delay: 0.6s; }

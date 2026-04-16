@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- 
+    SafeFlow | Community Network Feed
+    Philosophy: 'Collective Worker Intelligence'
+    
+    This social layer demonstrates hyper-local insights sharing.
+    Architecture:
+    - Real-time simulated feed based on MOCK_STATE.
+    - Glassmorphic card system for high-trust readability.
+    - Interactive 'Insight' broadcasting (Simulated).
+    - Stand-alone design: No backend dependency required for UI prototyping.
+  -->
+  <meta charset="UTF-8">
+  <title>Community | SafeFlow.ai</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/glass.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/mobile.css">
+</head>
+<body>
+
+  <nav class="navbar-desktop">
+    <a href="dashboard.html" style="text-decoration:none; font-family:'Sora';font-weight:700;color:var(--primary);font-size:1.2rem">🛡️ SafeFlow</a>
+    <div class="navbar-links">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="community.html" class="active">Community Feed</a>
+      <a href="profile.html">Profile</a>
+      <a href="#" style="color:var(--danger)" onclick="logout()">Logout</a>
+    </div>
+  </nav>
+
+  <nav class="navbar-mobile">
+      <div class="nav-tab" onclick="location.href='dashboard.html'">🏠<br>Home</div>
+      <div class="nav-tab active" onclick="location.href='community.html'">🗣️<br>Feed</div>
+      <div class="nav-tab" onclick="location.href='profile.html'">👤<br>Profile</div>
+      <div class="nav-tab" onclick="logout()">🚪<br>Exit</div>
+  </nav>
+
+  <main class="container" style="max-width:800px">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px">
+        <h2>Worker Network 🤝</h2>
+        <div id="reg-info" style="text-align:center; margin-bottom:16px; font-size:0.85rem; color:var(--text-muted)">
+        Note: SafeFlow uses Phone-based OTP. No password setup required.
+    </div>
+    <!-- Ghost field to prevent browser 'Password Required' errors -->
+    <input type="password" name="password" style="display:none" autocomplete="new-password">
+    </div>
+
+    <!-- Compose -->
+    <div class="glass-card" style="margin-bottom:24px; padding:16px">
+        <textarea id="new-post-text" placeholder="Share weather insights, traffic updates, or experiences..." style="width:100%; min-height:80px; padding:12px; border-radius:12px; border:1px solid var(--glass-border); background:white"></textarea>
+        <div style="display:flex; justify-content:flex-end; margin-top:12px">
+            <button class="btn-primary" onclick="createPost()">Broadcast</button>
+        </div>
+    </div>
+
+    <!-- Feed -->
+    <div id="community-feed" class="community-feed">
+        <!-- Rendered by js/community.js -->
+        <div class="skeleton" style="height:120px; width:100%; margin-bottom:12px"></div>
+        <div class="skeleton" style="height:120px; width:100%; margin-bottom:12px"></div>
+    </div>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/community.js"></script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- 
+    SafeFlow | Worker Profile Configuration
+    Philosophy: 'Individual Trust Profile'
+    
+    This interface demonstrates the worker's personalized parametric configuration.
+    Architecture:
+    - Persistent profile logic using LocalStorage (via MOCK_STATE in api.js).
+    - Modular 'Edit/Save' interaction pattern with glassmorphic styling.
+    - Zero-touch insurance settings overview.
+  -->
+  <meta charset="UTF-8">
+  <title>Profile | SafeFlow.ai</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/glass.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/mobile.css">
+</head>
+<body>
+
+  <nav class="navbar-desktop">
+    <a href="dashboard.html" style="text-decoration:none; font-family:'Sora';font-weight:700;color:var(--primary);font-size:1.2rem">🛡️ SafeFlow</a>
+    <div class="navbar-links">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="community.html">Community Feed</a>
+      <a href="profile.html" class="active">Profile</a>
+      <a href="#" style="color:var(--danger)" onclick="logout()">Logout</a>
+    </div>
+  </nav>
+
+  <nav class="navbar-mobile">
+      <div class="nav-tab" onclick="location.href='dashboard.html'">🏠<br>Home</div>
+      <div class="nav-tab" onclick="location.href='community.html'">🗣️<br>Feed</div>
+      <div class="nav-tab active" onclick="location.href='profile.html'">👤<br>Profile</div>
+      <div class="nav-tab" onclick="logout()">🚪<br>Exit</div>
+  </nav>
+
+  <main class="container" style="max-width:600px">
+    <h2 style="margin-bottom:24px">Your Profile</h2>
+
+    <div class="glass-card" style="margin-bottom:24px; text-align:center">
+        <div style="width:80px;height:80px;border-radius:50%;background:var(--primary-glow);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--primary)">
+            🤖
+        </div>
+        <h3 id="prof-name-display">Worker</h3>
+        <p style="color:var(--text-muted);margin-bottom:12px">Trust Score: <span id="prof-trust" style="color:var(--primary);font-weight:600">--/100</span></p>
+    </div>
+
+    <div class="glass-card" style="margin-bottom:24px">
+        <h4>Edit Details</h4>
+        <label>Full Name</label>
+        <input type="text" id="prof-name" class="glass-input">
+        
+        <label>Working City</label>
+        <select id="prof-city" class="glass-input">
+            <option value="Mumbai">Mumbai</option><option value="Delhi">Delhi</option>
+            <option value="Bangalore">Bangalore</option><option value="Chennai">Chennai</option>
+            <option value="Pune">Pune</option><option value="Kolkata">Kolkata</option>
+            <option value="Hyderabad">Hyderabad</option>
+        </select>
+        
+        <label>UPI ID</label>
+        <input type="text" id="prof-upi" class="glass-input" placeholder="yourname@bank">
+
+        <button class="btn-primary" style="width:100%;margin-top:16px" onclick="updateProfile()">Save Changes</button>
+    </div>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/profile.js"></script>
+</body>
+</html>

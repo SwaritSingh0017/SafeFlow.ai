@@ -1,0 +1,51 @@
+/**
+ * GLASSMORPHISM UTILITY SYSTEM
+ * 
+ * Provides standard 'frosted glass' components used throughout the application.
+ * All cards utilize a subtle white border and high blur to maintain depth across gradients.
+ */
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur); /* Safari */
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 24px;
+}
+
+/* Hover elevation: Mimics physical glass lighting changes */
+.glass-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: var(--shadow-hover);
+  border-color: rgba(249, 115, 22, 0.4);
+}
+
+/**
+ * GLASS PANELS: Stronger backgrounds for UI components like navbars
+ */
+.glass-panel {
+  background: var(--glass-bg-strong);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.glass-input {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-btn);
+  backdrop-filter: blur(4px);
+}
+
+.glass-modal {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.1);
+  padding: 32px;
+}

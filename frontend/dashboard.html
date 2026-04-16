@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- 
+    SafeFlow | Worker Financial Protection Dashboard
+    Philosophy: 'Visibility of Payouts'
+    
+    This interface demonstrates real-time weather-parametric claims.
+    Architecture:
+    - Stand-alone Frontend: Decoupled from core ledger, communicates via REST API.
+    - Parametric Logic: Triggers payouts based on weather thresholds (Rain/Wind/Temp).
+    - Analytics: Simulated worker risk assessment and settlement history tracking.
+    - UI/UX: Glassmorphism design with responsive mobile-first grid layout.
+  -->
+  <meta charset="UTF-8">
+  <title>Dashboard | SafeFlow.ai</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/glass.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/mobile.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    .bot-btn { position:fixed; bottom:24px; right:24px; width:60px; height:60px; border-radius:50%; background:var(--bg-gradient); box-shadow:0 8px 32px var(--primary-glow); display:flex; align-items:center; justify-content:center; font-size:24px; cursor:pointer; z-index:9000; }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar-desktop">
+    <a href="dashboard.html" style="text-decoration:none; font-family:'Sora';font-weight:700;color:var(--primary);font-size:1.2rem">🛡️ SafeFlow</a>
+    <div class="navbar-links">
+      <a href="dashboard.html" class="active">Dashboard</a>
+      <a href="policy.html">🛡️ My Plan</a>
+      <a href="community.html">Community Feed</a>
+      <a href="profile.html">Profile</a>
+      <a href="#" style="color:var(--danger)" onclick="logout()">Logout</a>
+    </div>
+  </nav>
+
+  <!-- Mobile Bottom Nav -->
+  <nav class="navbar-mobile">
+    <div class="nav-tab active" onclick="location.href='dashboard.html'">
+        <span style="font-size:20px">🏠</span><br>Home
+    </div>
+    <div class="nav-tab" onclick="location.href='community.html'">
+        <span style="font-size:20px">🗣️</span><br>Feed
+    </div>
+    <div class="nav-tab" onclick="location.href='profile.html'">
+        <span style="font-size:20px">👤</span><br>Profile
+    </div>
+    <div class="nav-tab" onclick="logout()">
+        <span style="font-size:20px">🚪</span><br>Exit
+    </div>
+</nav>
+
+  <main class="container">
+    <h2 style="margin-top:20px">Welcome back, <span id="welcome-name">Rider</span></h2>
+    
+    <div class="dashboard-grid">
+      <!-- Row 1 -->
+      <div class="glass-card card-stagger" id="risk-card" style="text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center">
+        <h4 style="color:var(--text-muted); margin-bottom:8px">Today's Risk</h4>
+        <div id="risk-value" style="font-size:3rem; font-family:'Sora'; margin:12px 0;">--</div>
+        <div id="risk-label" style="font-weight:700; font-size:1.2rem">LOADING</div>
+      </div>
+
+      <div class="glass-card card-stagger">
+        <h4 style="color:var(--text-muted); margin-bottom:8px">🌤️ Real-time Config</h4>
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <span>🌡️ Temp</span> <b id="weather-temp">--°C</b>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <span>🌧️ Rain</span> <b id="weather-rain">-- mm</b>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <span>🍃 Wind</span> <b id="weather-wind">-- km/h</b>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <span>💧 Humidity</span> <b id="weather-humidity">--%</b>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <span>🌫️ AQI</span> <b id="weather-aqi">--</b>
+        </div>
+        <div style="margin-top:12px; font-size:0.9rem; color:var(--primary)" id="weather-summary">--</div>
+      </div>
+
+      <div class="glass-card card-stagger">
+        <h4 style="color:var(--text-muted); margin-bottom:8px">₹ Your Wallet</h4>
+        <div id="wallet-balance" style="font-size:3rem; font-family:'JetBrains Mono'; color:var(--success); margin:12px 0">
+           --
+        </div>
+        <div style="font-size:0.9rem; color:var(--text-muted)">Auto-credited instantly on claim</div>
+        <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap">
+            <button class="btn-primary" style="flex:1; min-width:80px" onclick="checkAndTrigger()">⚡ Check</button>
+            <button class="btn-secondary" style="flex:1; min-width:80px; border: 1px solid var(--primary); color: var(--primary); background: transparent; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s" onclick="addFundsPrompt()" onmouseover="this.style.background='var(--primary)'; this.style.color='white'" onmouseout="this.style.background='transparent'; this.style.color='var(--primary)'">+ Add Funds</button>
+            <button id="withdraw-btn" style="flex:1; min-width:80px; border: 1px solid var(--success); color: var(--success); background: transparent; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s" onclick="openWithdrawModal()" onmouseover="this.style.background='var(--success)'; this.style.color='white'" onmouseout="this.style.background='transparent'; this.style.color='var(--success)'">↑ Withdraw</button>
+        </div>
+      </div>
+
+      <div class="glass-card card-stagger">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h4 style="color:var(--text-muted); margin:0">Trust Score</h4>
+          <span class="badge" style="background:var(--success-glow); color:var(--success)" id="trust-score-badge">--/100</span>
+        </div>
+        <p style="font-size:0.85rem; color:var(--text-secondary); margin-top:12px">Highest tier active: Instant parametric payouts under 1 sec. GPS verified.</p>
+        <hr style="border:0; border-top:1px solid var(--glass-border); margin:12px 0">
+        <div style="display:flex; flex-direction:column; gap:8px; font-size:0.85rem">
+            <div id="active-plan-badge" style="color:var(--warning)">No Active Plan</div>
+            <a href="policy.html" class="btn-primary" style="text-align:center;text-decoration:none;padding:8px">🛡️ Manage Plan</a>
+        </div>
+      </div>
+
+      <!-- Row 2 -->
+      <div class="glass-card card-stagger col-span-2">
+        <h4>📍 Live Zone Map</h4>
+       <div id="worker-mini-map" style="height:220px; width:100%; border-radius:12px;"></div>
+      </div>
+      
+      <div class="glass-card card-stagger col-span-2" style="max-height: 400px; overflow-y:auto">
+        <h4>📜 Settlement History</h4>
+        <table style="width:100%; text-align:left; border-collapse:collapse; margin-top:12px; font-size:0.9rem" class="data-table">
+            <thead>
+                <tr style="border-bottom:1px solid var(--glass-border)">
+                    <th style="padding:8px">Age</th>
+                    <th style="padding:8px">Trigger</th>
+                    <th style="padding:8px">Amount</th>
+                    <th style="padding:8px">Status</th>
+                </tr>
+            </thead>
+            <tbody id="claims-tbody">
+                <tr><td colspan="4">Loading...</td></tr>
+            </tbody>
+        </table>
+      </div>
+
+    </div>
+  </main>
+
+  <div id="fund-modal" class="glass-modal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:320px; max-width:90vw; z-index:9999; padding:24px; flex-direction:column; align-items:center;">
+      <div style="font-weight:700; font-family:'Sora'; color:var(--primary); margin-bottom:12px; font-size:1.4rem;">Add Funds</div>
+      <p style="text-align:center;color:var(--text-secondary);margin-bottom:20px;font-size:0.95rem;">Enter amount to deposit into your SafeFlow Wallet (₹)</p>
+      <input type="number" id="fund-amount" placeholder="e.g. 500" value="500" style="width:100%; margin-bottom:20px; padding:12px; border-radius:8px; border:1px solid var(--glass-border); background:rgba(255, 255, 255, 0.05); color:var(--text-primary); text-align:center; font-size:1.2rem; font-family:'JetBrains Mono', monospace;" onkeypress="if(event.key==='Enter') processAddFunds()">
+      <div style="display:flex; gap:12px; width:100%;">
+          <button class="btn-ghost" style="flex:1" onclick="closeFundModal()">Cancel</button>
+          <button class="btn-primary" style="flex:1" onclick="processAddFunds()">Proceed</button>
+      </div>
+  </div>
+
+  <!-- ─── Withdraw Modal ─────────────────────────────────── -->
+  <div id="withdraw-modal" class="glass-modal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); width:340px; max-width:92vw; z-index:9999; padding:28px; flex-direction:column; align-items:center;">
+    <div style="font-weight:700; font-family:'Sora'; color:var(--success); margin-bottom:8px; font-size:1.5rem;">↑ Withdraw Funds</div>
+    <p style="text-align:center; color:var(--text-secondary); margin-bottom:20px; font-size:0.9rem; line-height:1.5;">Withdraw wallet balance to your UPI account. Minimum ₹10, funds arrive within 24 hours.</p>
+
+    <div style="width:100%; margin-bottom:14px;">
+      <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:6px; font-weight:600;">AMOUNT (₹)</label>
+      <input type="number" id="withdraw-amount" placeholder="e.g. 200" min="10" max="10000"
+        style="width:100%; box-sizing:border-box; padding:12px; border-radius:8px; border:1px solid var(--glass-border); background:rgba(255,255,255,0.05); color:var(--text-primary); text-align:center; font-size:1.3rem; font-family:'JetBrains Mono', monospace;">
+    </div>
+
+    <div style="width:100%; margin-bottom:20px;">
+      <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:6px; font-weight:600;">UPI ID</label>
+      <input type="text" id="withdraw-upi" placeholder="e.g. yourname@upi"
+        style="width:100%; box-sizing:border-box; padding:12px; border-radius:8px; border:1px solid var(--glass-border); background:rgba(255,255,255,0.05); color:var(--text-primary); font-size:1rem;"
+        oninput="document.getElementById('withdraw-upi-note').style.display='none'">
+      <div id="withdraw-upi-note" style="font-size:0.75rem; color:var(--text-muted); margin-top:4px; display:none;">✓ Pre-filled from your saved UPI</div>
+    </div>
+
+    <div style="display:flex; gap:12px; width:100%;">
+      <button class="btn-ghost" style="flex:1" onclick="closeWithdrawModal()">Cancel</button>
+      <button id="withdraw-submit-btn" class="btn-primary" style="flex:1; background:var(--success); border-color:var(--success);" onclick="submitWithdrawal()">Withdraw</button>
+    </div>
+  </div>
+
+  <div class="bot-btn" onclick="toggleChat()">🤖</div>
+
+  <div id="chat-panel" class="glass-modal" style="display:none; position:fixed; bottom:96px; right:24px; width:340px; height:480px; flex-direction:column; z-index:9000; padding:16px;">
+      <div style="font-weight:700; font-family:'Sora'; color:var(--primary); margin-bottom:12px; border-bottom:1px solid var(--glass-border); padding-bottom:12px;">🤖 SafeFlow.ai Assistant</div>
+      
+      <div id="chat-body" style="flex:1; overflow-y:auto; margin-bottom:12px; font-size:0.9rem">
+          <div style="text-align:left; margin:8px 0; color:var(--text-secondary)"><b>SafeFlow.ai:</b> Hi! I'm your zone assistant. Need to check tomorrow's risk or know the best time to work?</div>
+      </div>
+
+      <div style="display:flex; gap:8px;">
+          <input type="text" id="chat-input" placeholder="Type..." style="margin:0; padding:8px" onkeypress="if(event.key==='Enter') sendChat()">
+          <button class="btn-primary" style="padding:8px 12px" onclick="sendChat()">↑</button>
+      </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/payment.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/chatbot.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+    // Wait for currentUser to be set by guardRoute
+    let attempts = 0;
+    const mapInterval = setInterval(() => {
+        attempts++;
+        if (window.currentUser && window.initWorkerMiniMap) {
+            clearInterval(mapInterval);
+            window.initWorkerMiniMap(window.currentUser.city);
+        }
+        if (attempts > 20) clearInterval(mapInterval); // stop after 10s
+    }, 500);
+});
+  </script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SafeFlow.ai | Admin Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/glass.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0F172A">
+
+  <div class="glass-card" style="width:400px;max-width:92vw;background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.12)">
+    <!-- Judge hint -->
+    <div style="background:rgba(234,179,8,0.1);border:1px solid rgba(234,179,8,0.35);border-radius:8px;padding:10px 14px;margin-bottom:20px;font-size:0.82rem;">
+      <strong style="color:#ca8a04">🔐 Admin Demo</strong><br>
+      Email: <code>admin@safeflow.ai</code> &nbsp;|&nbsp; Password: <code>Admin@2026</code>
+    </div>
+
+    <a href="index.html" style="text-decoration:none;display:block;text-align:center;color:#fff;margin-bottom:8px">
+      <h2>🔐 Admin Portal</h2>
+    </a>
+    <p style="text-align:center;color:rgba(255,255,255,0.5);margin-bottom:24px;font-size:0.9rem">SafeFlow Operations Console</p>
+
+    <label style="color:rgba(255,255,255,0.7);font-size:0.9rem">Email</label>
+    <input type="email" id="admin-email" value="admin@safeflow.ai" style="background:rgba(255,255,255,0.9);color:#0F172A">
+
+    <label style="color:rgba(255,255,255,0.7);font-size:0.9rem;margin-top:12px;display:block">Password</label>
+    <input type="password" id="admin-pass" value="Admin@2026" style="background:rgba(255,255,255,0.9);color:#0F172A">
+
+    <button class="btn-primary" style="width:100%;margin-top:20px" onclick="adminLogin()">Authenticate</button>
+    <div style="text-align:center;margin-top:14px">
+      <a href="login.html" style="color:rgba(255,255,255,0.4);font-size:0.85rem;text-decoration:none">← Worker login</a>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    async function adminLogin() {
+      const email    = document.getElementById("admin-email").value;
+      const password = document.getElementById("admin-pass").value;
+      try {
+        const res  = await apiFetch("/auth/admin/login", { method: "POST", body: JSON.stringify({ email, password }) });
+        if (!res)  return;
+        const data = await res.json();
+        if (res.ok) {
+          saveAuth(data, true, { role: "admin", name: "Admin" });
+          showToast("Admin authenticated!", "success");
+          setTimeout(() => { window.location.href = "admin.html"; }, 500);
+        } else {
+          showToast(data.detail || "Login failed", "error");
+        }
+      } catch (e) {
+        showToast("Network error", "error");
+      }
+    }
+  </script>
+</body>
+</html>

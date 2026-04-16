@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SafeFlow.ai | Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/glass.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body style="display:flex;align-items:center;justify-content:center;min-height:100vh">
+
+  <div class="glass-card" style="width:400px;max-width:92vw;">
+    <a href="index.html" style="text-decoration:none;display:block;text-align:center;color:var(--primary);margin-bottom:6px">
+      <h2>SafeFlow.ai</h2>
+    </a>
+    <p style="text-align:center;color:var(--text-secondary);margin-bottom:24px">
+      Welcome back. Sign in with Firebase phone OTP.
+    </p>
+
+    <div id="phone-step">
+      <label style="font-weight:600;display:block;margin-bottom:8px">Phone Number</label>
+      <input type="tel" id="login-phone" placeholder="e.g. 9876543210" maxlength="10">
+      <button type="button" class="btn-primary" style="width:100%;margin-top:4px" onclick="sendOtp()">Send OTP</button>
+      <div style="margin-top:20px;text-align:center">
+        <a href="register.html" style="color:var(--primary);text-decoration:none">Need an account? Register</a>
+      </div>
+      <div style="margin-top:10px;text-align:center">
+        <a href="admin-login.html" style="color:var(--text-muted);font-size:0.85rem;text-decoration:none">Admin login</a>
+      </div>
+    </div>
+
+    <div id="otp-step" style="display:none">
+      <label style="font-weight:600;display:block;margin-bottom:8px">Enter OTP</label>
+      <p id="otp-hint" style="font-size:0.85rem;color:var(--text-muted);margin-bottom:12px"></p>
+      <input type="text" id="login-otp" placeholder="6-digit code" maxlength="6" inputmode="numeric">
+      <div style="display:flex;align-items:center;margin-bottom:16px;gap:8px">
+        <input type="checkbox" id="remember-me" style="width:auto;margin:0" checked>
+        <label for="remember-me" style="font-size:0.9rem">Remember me</label>
+      </div>
+      <button type="button" class="btn-primary" style="width:100%" onclick="verifyOtp()">Verify and Login</button>
+      <button type="button" class="btn-ghost" style="width:100%;margin-top:10px" onclick="resetToPhone()">Change phone</button>
+    </div>
+  </div>
+
+  <div id="firebase-recaptcha"></div>
+
+  <script src="js/config.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/firebase-auth.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    async function sendOtp() {
+      const phone = document.getElementById("login-phone").value.trim();
+      if (!phone || phone.length !== 10) {
+        return showToast("Enter a valid 10-digit phone number", "error");
+      }
+      try {
+        await sendFirebaseOtp(phone, "firebase-recaptcha");
+        window.__otpMode = "firebase";
+        document.getElementById("phone-step").style.display = "none";
+        document.getElementById("otp-step").style.display = "block";
+        document.getElementById("otp-hint").textContent = `OTP sent to +91${phone}`;
+        showToast("OTP sent!", "success");
+      } catch (error) {
+        try {
+          const fallback = await sendBackendOtp(phone);
+          document.getElementById("phone-step").style.display = "none";
+          document.getElementById("otp-step").style.display = "block";
+          document.getElementById("otp-hint").textContent =
+            fallback.method === "demo"
+              ? "Demo OTP is 123456"
+              : `OTP sent to +91${phone} via backend service`;
+          showToast("OTP sent via backend fallback!", "success");
+        } catch (fallbackError) {
+          showToast(fallbackError.message || error.message || "Failed to send OTP", "error");
+        }
+      }
+    }
+
+    async function verifyOtp() {
+      const otp = document.getElementById("login-otp").value.trim();
+      const remember = document.getElementById("remember-me").checked;
+      const phone = document.getElementById("login-phone").value.trim();
+      if (!otp || otp.length !== 6) {
+        return showToast("Enter the 6-digit OTP", "error");
+      }
+
+      try {
+        let result;
+        if (window.__otpMode === "backend") {
+          result = await verifyBackendOtp(phone, otp);
+        } else {
+          const firebaseToken = await confirmFirebaseOtp(otp);
+          result = await exchangeFirebaseToken(firebaseToken);
+        }
+        if (!result) return;
+
+        const { response, data } = result;
+        if (response.ok) {
+          saveAuth(data, remember, data.worker);
+          showToast("Login successful!", "success");
+          setTimeout(() => { window.location.href = "dashboard.html"; }, 500);
+          return;
+        }
+
+        if (response.status === 404 && typeof data.detail === "object" && data.detail.code === "registration_required") {
+          sessionStorage.setItem("gs_pending_phone", phone);
+          showToast("Account not found. Please complete registration.", "error");
+          setTimeout(() => { window.location.href = "register.html"; }, 700);
+          return;
+        }
+
+        showToast((typeof data.detail === "object" ? data.detail.message : data.detail) || "Login failed", "error");
+      } catch (error) {
+        showToast(error.message || "Verification failed", "error");
+      }
+    }
+
+    function resetToPhone() {
+      document.getElementById("phone-step").style.display = "block";
+      document.getElementById("otp-step").style.display = "none";
+    }
+  </script>
+</body>
+</html>
