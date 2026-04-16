@@ -317,45 +317,32 @@ service cloud.firestore {
 
 ```
 SafeFlow.ai/
-├── public/
-│   └── index.html
-├── src/
-│   ├── components/
-│   │   ├── worker/
-│   │   │   ├── Dashboard.jsx          # Main worker dashboard
-│   │   │   ├── WalletCard.jsx         # Wallet + withdraw
-│   │   │   ├── RiskScore.jsx          # Live risk score widget
-│   │   │   ├── WeatherConfig.jsx      # Real-time weather panel
-│   │   │   └── SettlementHistory.jsx  # Payout history table
-│   │   ├── admin/
-│   │   │   ├── OperationsPortal.jsx   # Admin dashboard
-│   │   │   ├── InvestigationQueue.jsx # Fraud review queue
-│   │   │   ├── ActuarialPool.jsx      # Pool health by city
-│   │   │   └── WithdrawalManager.jsx  # Payout approvals
-│   │   ├── radar/
-│   │   │   ├── RiskHeatmap.jsx        # Leaflet map
-│   │   │   └── DisruptionSimulator.jsx # Test console
-│   │   └── shared/
-│   │       ├── Navbar.jsx
-│   │       └── Layout.jsx
-│   ├── pages/
-│   │   ├── Landing.jsx                # Public homepage
-│   │   ├── Login.jsx                  # OTP auth flow
-│   │   ├── WorkerApp.jsx              # Protected worker routes
-│   │   └── AdminApp.jsx               # Protected admin routes
-│   ├── lib/
-│   │   ├── firebase.js                # Firebase init
-│   │   ├── parametric.js              # Trigger evaluation logic
-│   │   ├── fraudEngine.js             # AI fraud scoring
-│   │   └── weatherApi.js              # Weather data fetching
-│   ├── hooks/
-│   │   ├── useAuth.js
-│   │   ├── useWeather.js
-│   │   └── useWallet.js
-│   └── App.jsx
-├── .env.example
-├── package.json
-└── README.md
+│
+├── backend/                  # FastAPI Server
+│   ├── main.py               # Application entry point
+│   ├── database.py           # DB connection & models mapping
+│   ├── models.py             # SQLAlchemy models
+│   ├── security.py           # JWT & Hash logic
+│   ├── auth_routes.py        # Login, Reg, OTP endpoints
+│   ├── worker_routes.py      # Escrow, Claims, Community APIs
+│   ├── payment_routes.py     # Razorpay webhooks & verification
+│   ├── admin_routes.py       # Admin controls & dashboards
+│   └── safeflow.db           # SQLite DB (local)
+│
+├── frontend/                 # Vanilla JS / HTML Client
+│   ├── assets/               # Video and screenshot mockups
+│   ├── css/                  # Styling & Glassmorphism
+│   ├── js/                   # UI logic & API fetch layer
+│   ├── index.html            # Landing page
+│   ├── login.html            # Firebase-auth / OTP login
+│   ├── dashboard.html        # Worker escrow dashboard
+│   ├── admin.html            # Admin & withdrawal portal
+│   └── (other views)
+│
+├── README.md                 # Project Overview
+├── RUN_LOCAL.md              # Local setup guide
+├── requirement.txt           # Python dependencies
+└── render.yaml               # Deployment configuration
 ```
 
 ---
