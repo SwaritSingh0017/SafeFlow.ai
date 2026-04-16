@@ -152,7 +152,7 @@ When a weather event meets our parametric threshold (heavy rain, heatwave, AQI s
 
 | Layer | Technology | Purpose |
 |-------|-----------|---------|
-| **Frontend** | React.js | Worker dashboard, admin portal |
+| **Frontend** | HTML, CSS, JS | Worker dashboard, admin portal |
 | **Authentication** | Firebase Auth (Phone OTP) | Zero-friction mobile login |
 | **Database** | Firebase Realtime DB / Firestore | Live data sync |
 | **Hosting** | Render | Full-stack deployment |
