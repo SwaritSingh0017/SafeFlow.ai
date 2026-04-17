@@ -12,7 +12,7 @@
 [![GitHub](https://img.shields.io/badge/GitHub-SwaritSingh0017%2FSafeFlow.ai-181717?style=flat-square&logo=github)](https://github.com/SwaritSingh0017/SafeFlow.ai)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 [![Firebase](https://img.shields.io/badge/Firebase-Auth%20%2B%20DB-FFCA28?style=flat-square&logo=firebase&logoColor=black)](https://firebase.google.com)
-
+[![Pitch Deck](https://img.shields.io/badge/📊%20Pitch%20Deck-View%20Now-blue?style=flat-square)](https://your-pitch-deck-link-here)
 ---
 
 </div>
@@ -439,6 +439,7 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 *SafeFlow.ai — Protecting the people who keep India moving*
 
+[![Pitch Deck](https://img.shields.io/badge/📊%20Pitch%20Deck-View%20Now-blue?style=for-the-badge)](https://your-pitch-deck-link-here)
 [![Live Demo](https://img.shields.io/badge/Try%20Live%20Demo-F57C00?style=for-the-badge)](https://safeflow-ai-ev3w.onrender.com/)
 
 </div>
